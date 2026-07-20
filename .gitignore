@@ -9,4 +9,4 @@ app/pipelines/__pycache__/
 app/services/__pycache__/
 app/utils/__pycache__/
 app/vectorstore/__pycache__/
-docs/
+docs/file_structure.txt
