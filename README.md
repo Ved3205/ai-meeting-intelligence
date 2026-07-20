@@ -1,7 +1,7 @@
 # 🎙️ AI Meeting Intelligence Platform
 
 <p align="center">
-  <img src="docs/AI-Meeting%20Platform.png" alt="AI Meeting Intelligence Platform Architecture" width="100%">
+  <img src="docs/AI-Meeting-Platform.png" alt="AI Meeting Intelligence Platform Architecture" width="100%">
 </p>
 
 <p align="center">
