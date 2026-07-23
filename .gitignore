@@ -10,3 +10,4 @@ app/services/__pycache__/
 app/utils/__pycache__/
 app/vectorstore/__pycache__/
 docs/file_structure.txt
+app/config/
