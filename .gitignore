@@ -2,12 +2,11 @@ tests/
 temp/
 data/
 app/__pycache__/
-app/config/__pycache__/
+app/config/
 app/core/__pycache__/
 app/models/__pycache__/
 app/pipelines/__pycache__/
 app/services/__pycache__/
-app/utils/__pycache__/
+app/utils/
 app/vectorstore/__pycache__/
 docs/file_structure.txt
-app/config/
