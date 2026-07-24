@@ -1,0 +1,11 @@
+langchain-text-splitters
+sentence-transformers
+torch
+transformers
+qdrant-client
+faster-whisper
+ollama>=0.4.0
+# Qdrant
+uvicorn
+fastapi
+pydantic
