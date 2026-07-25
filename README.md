@@ -443,14 +443,14 @@ Grounded Response
 - Qdrant integration
 - Meeting indexing pipeline
 - Initial testing
+- Whisper transcription service
+- Chunking service
 
 ---
 
 ## 🚧 In Progress
 
 - Video pipeline
-- Whisper transcription
-- Chunking service
 
 ---
 
