@@ -7,7 +7,7 @@ Every prompt in the project should inherit from this class.
 """
 
 from __future__ import annotations
-
+from app.models.prompt_request import PromptRequest
 from abc import ABC, abstractmethod
 
 
@@ -19,18 +19,14 @@ class PromptBuilder(ABC):
     """
 
     @abstractmethod
-    def build(self, *args, **kwargs) -> str:
+    def build(
+        self,
+        request: PromptRequest,
+    ) -> str:
         """
-        Build and return the final prompt.
-
-        Returns
-        -------
-        str
-            Prompt to send to the LLM.
+        Build the final prompt.
         """
-        raise NotImplementedError(
-            "Prompt builders must implement build()."
-        )
+        raise NotImplementedError
 
     @staticmethod
     def separator(length: int = 80) -> str:
