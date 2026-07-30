@@ -13,6 +13,9 @@ from app.config.settings import (
 
 from app.models.llm_request import LLMRequest
 from app.models.llm_response import LLMResponse
+from app.models.prompt_request import PromptRequest
+
+from app.prompts.registry.prompt_factory import PromptFactory
 
 
 class LLMService:
@@ -29,26 +32,23 @@ class LLMService:
         request: LLMRequest,
     ) -> LLMResponse:
 
-        context = self._build_context(
-            request.retrieved_chunks
+        builder = PromptFactory.get_builder("qa")
+
+        prompt_request = PromptRequest(
+            question=request.question,
+            retrieved_chunks=request.retrieved_chunks,
         )
 
-        prompt = self._build_prompt(
-            request.question,
-            context,
-        )
+        prompt = builder.build(prompt_request)
 
         response = ollama.chat(
-
             model=self.model,
-
             messages=[
                 {
                     "role": "user",
                     "content": prompt,
                 }
             ],
-
             options={
                 "temperature": LLM_TEMPERATURE,
             },
@@ -57,70 +57,11 @@ class LLMService:
         answer = response["message"]["content"]
 
         source_chunks = [
-
             chunk.chunk_id
-
             for chunk in request.retrieved_chunks
-
         ]
 
         return LLMResponse(
-
             answer=answer,
-
             source_chunks=source_chunks,
-
         )
-
-    @staticmethod
-    def _build_context(chunks):
-
-        sections = []
-
-        for chunk in chunks:
-
-            sections.append(
-
-                f"""
-Chunk ID : {chunk.chunk_id}
-
-Meeting : {chunk.meeting_id}
-
-Timestamp : {chunk.start_time:.2f} - {chunk.end_time:.2f}
-
-Content:
-{chunk.text}
-"""
-            )
-
-        return "\n\n".join(sections)
-
-    @staticmethod
-    def _build_prompt(
-        question: str,
-        context: str,
-    ) -> str:
-
-        return f"""
-You are an AI Meeting Assistant.
-
-Answer ONLY using the supplied meeting context.
-
-If the answer is not present in the context,
-reply exactly:
-
-"I could not find that information in this meeting."
-
-Meeting Context
-====================
-
-{context}
-
-====================
-
-Question
-
-{question}
-
-Answer:
-"""

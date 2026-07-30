@@ -3,8 +3,8 @@ Meeting Summary Prompt
 """
 
 from app.models.prompt_request import PromptRequest
-from app.prompts.prompt_builder import PromptBuilder
-from app.prompts.prompt_formatter import PromptFormatter
+from app.prompts.builders.prompt_builder import PromptBuilder
+from app.prompts.formatter.prompt_formatter import PromptFormatter
 
 
 class SummaryPrompt(PromptBuilder):
