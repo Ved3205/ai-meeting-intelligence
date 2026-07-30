@@ -12,3 +12,4 @@ app/vectorstore/__pycache__/
 app/prompts/__pycache__/
 docs/file_structure.txt
 app/pipelines/
+GitHub Workflow.txt
