@@ -1,15 +1,13 @@
 """
-Question Answer Prompt Builder
+Question Answer Prompt
 """
 
 from app.models.prompt_request import PromptRequest
 from app.prompts.prompt_builder import PromptBuilder
+from app.prompts.prompt_formatter import PromptFormatter
 
 
 class QAPrompt(PromptBuilder):
-    """
-    Builds prompts for question answering.
-    """
 
     def build(
         self,
@@ -19,67 +17,42 @@ class QAPrompt(PromptBuilder):
         if not request.question:
 
             raise ValueError(
-                "Question cannot be empty."
+                "Question is required."
             )
 
         if not request.retrieved_chunks:
 
             raise ValueError(
-                "No retrieved chunks provided."
+                "Retrieved chunks are required."
             )
 
-        context = self._build_context(
-            request
+        context = PromptFormatter.format_retrieved_chunks(
+            request.retrieved_chunks
         )
 
-        prompt = f"""
+        return f"""
 You are an AI Meeting Assistant.
 
-You must answer ONLY using the supplied meeting context.
+Answer ONLY using the provided meeting context.
 
-If the answer is not contained in the context, reply exactly:
+If the answer is unavailable,
+reply exactly:
 
 "I could not find that information in this meeting."
 
 {self.separator()}
 
-{self.format_section(
+{PromptFormatter.section(
     "Meeting Context",
     context,
 )}
 
 {self.separator()}
 
-{self.format_section(
+{PromptFormatter.section(
     "Question",
     request.question,
 )}
 
 Answer:
 """
-
-        return self.clean_text(prompt)
-
-    def _build_context(
-        self,
-        request: PromptRequest,
-    ) -> str:
-
-        sections = []
-
-        for chunk in request.retrieved_chunks:
-
-            sections.append(
-                f"""
-Chunk ID : {chunk.chunk_id}
-
-Meeting ID : {chunk.meeting_id}
-
-Timestamp : {chunk.start_time:.2f} - {chunk.end_time:.2f}
-
-Content:
-{chunk.text}
-"""
-            )
-
-        return "\n\n".join(sections)
