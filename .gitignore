@@ -1,15 +1,9 @@
 tests/
 temp/
 data/
-app/__pycache__/
+__pycache__/
 app/config/
-app/core/__pycache__/
-app/models/__pycache__/
-app/pipelines/__pycache__/
-app/services/__pycache__/
 app/utils/
-app/vectorstore/__pycache__/
-app/prompts/__pycache__/
 docs/file_structure.txt
 app/pipelines/
 GitHub Workflow.txt
