@@ -445,12 +445,12 @@ Grounded Response
 - Initial testing
 - Whisper transcription service
 - Chunking service
+- Prompt System
 
 ---
 
 ## 🚧 In Progress
 
-- Prompt System
 - Video pipeline
 
 ---
