@@ -9,8 +9,8 @@ from __future__ import annotations
 from app.prompts.builders.qa_prompt import QAPrompt
 from app.prompts.builders.summary_prompt import SummaryPrompt
 from app.prompts.builders.action_items_prompt import ActionItemsPrompt
-# from app.prompts.keyword_prompt import KeywordPrompt
-# from app.prompts.title_prompt import TitlePrompt
+from app.prompts.builders.keyword_prompt import KeywordPrompt
+from app.prompts.builders.title_prompt import TitlePrompt
 
 
 class PromptFactory:
@@ -23,8 +23,8 @@ class PromptFactory:
         "qa": QAPrompt,
         "summary": SummaryPrompt,
         "action_items": ActionItemsPrompt,
-        # "keywords": KeywordPrompt,
-        # "title": TitlePrompt,
+        "keywords": KeywordPrompt,
+        "title": TitlePrompt,
 
     }
 
