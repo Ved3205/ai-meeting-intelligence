@@ -8,3 +8,5 @@ docs/file_structure.txt
 app/pipelines/
 GitHub Workflow.txt
 reminders.txt
+app/services/SERVICES.md
+app/models/MODELS.md

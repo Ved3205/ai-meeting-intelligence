@@ -1,28 +1,31 @@
 """
 services/chunking_service.py
 
-Converts Transcript into semantic chunks.
-
-Responsibilities
-----------------
-1. Receive Transcript
-2. Split transcript into chunks
-3. Preserve timestamps
-4. Return Chunk models
+Creates semantic chunks while preserving TranscriptSegment
+objects and timestamps.
 """
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from app.config.settings import (
-    CHUNK_OVERLAP,
     CHUNK_SIZE,
+    CHUNK_OVERLAP,
 )
 
 from app.models.chunk import Chunk
-from app.models.transcript import Transcript
+from app.models.transcript import (
+    Transcript,
+    TranscriptSegment,
+)
+
 
 class ChunkingService:
+    """
+    Converts a Transcript into semantic Chunk objects.
+    """
+
     def __init__(self):
+
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=CHUNK_SIZE,
             chunk_overlap=CHUNK_OVERLAP,
@@ -33,40 +36,95 @@ class ChunkingService:
                 "? ",
                 "! ",
                 " ",
-                ""
+                "",
             ],
+            add_start_index=True,
         )
+
     def chunk_transcript(
         self,
         transcript: Transcript,
     ) -> list[Chunk]:
-        """
-        Convert transcript into Chunk objects.
-        """
-        transcript_text = self._build_text(transcript)
-        chunk_texts = self.splitter.split_text(transcript_text)
+
+        text, segment_map = self._build_document(transcript)
+
+        docs = self.splitter.create_documents([text])
+
         chunks = []
-        for index, text in enumerate(chunk_texts):
+
+        for idx, doc in enumerate(docs):
+
+            start = doc.metadata["start_index"]
+            end = start + len(doc.page_content)
+
+            chunk_segments = self._segments_for_range(
+                segment_map,
+                start,
+                end,
+            )
+
+            if not chunk_segments:
+                continue
+
             chunks.append(
                 Chunk(
-                    chunk_id=f"{transcript.meeting_id}_{index}",
+                    chunk_id=f"{transcript.meeting_id}_{idx}",
                     meeting_id=transcript.meeting_id,
-                    chunk_index=index,
-                    text=text,
-                    start_time=None,
-                    end_time=None,
+                    chunk_index=idx,
+                    transcript_segments=chunk_segments,
+                    start_time=chunk_segments[0].start,
+                    end_time=chunk_segments[-1].end,
                 )
             )
+
         return chunks
-    def _build_text(
+
+    def _build_document(
         self,
         transcript: Transcript,
-    ) -> str:
+    ):
 
-        """
-        Merge transcript segments into one document.
-        """
-        return "\n".join(
-            segment.text
-            for segment in transcript.segments
-        )
+        parts = []
+        mapping = []
+
+        cursor = 0
+
+        for segment in transcript.segments:
+
+            text = segment.text.strip()
+
+            start = cursor
+            end = start + len(text)
+
+            parts.append(text)
+
+            mapping.append(
+                {
+                    "segment": segment,
+                    "start": start,
+                    "end": end,
+                }
+            )
+
+            cursor = end + 1
+
+        return "\n".join(parts), mapping
+
+    def _segments_for_range(
+        self,
+        mapping,
+        chunk_start,
+        chunk_end,
+    ):
+
+        segments = []
+
+        for item in mapping:
+
+            if (
+                item["end"] >= chunk_start
+                and item["start"] <= chunk_end
+            ):
+                segments.append(item["segment"])
+
+        return segments
