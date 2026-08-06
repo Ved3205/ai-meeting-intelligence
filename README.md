@@ -446,20 +446,22 @@ Grounded Response
 - Whisper transcription service
 - Chunking service
 - Prompt System
+- Video pipeline
 
 ---
 
 ## 🚧 In Progress
 
-- Video pipeline
+- Query Pipeline
 
 ---
 
 ## 📅 Upcoming
 
+- Summary pipeline
+- Indexing Pipeline
 - Retrieval pipeline
 - RAG pipeline
-- Summary pipeline
 - FastAPI backend
 - Next.js frontend
 - PostgreSQL integration
