@@ -5,9 +5,10 @@ __pycache__/
 app/config/
 app/utils/
 docs/file_structure.txt
-app/pipelines/
 GitHub Workflow.txt
 reminders.txt
 app/services/SERVICES.md
 app/models/MODELS.md
 app/prompts/PROMPTS.md
+video_pipeline_deliverable.zip
+.pytest_cache
