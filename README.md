@@ -558,6 +558,11 @@ This project is designed to gain hands-on experience with:
 
 B.Tech Computer Science & Engineering (2023–2027)
 
+
+**Arjun Dasalkar**
+
+B.Tech Computer Science & Engineering (2023–2027)
+
 ---
 
 # ⭐ Project Status
