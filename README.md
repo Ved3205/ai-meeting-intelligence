@@ -447,21 +447,19 @@ Grounded Response
 - Chunking service
 - Prompt System
 - Video pipeline
+- Query Pipeline
 
 ---
 
 ## 🚧 In Progress
 
-- Query Pipeline
+- Summary Pipeline
 
 ---
 
 ## 📅 Upcoming
 
-- Summary pipeline
 - Indexing Pipeline
-- Retrieval pipeline
-- RAG pipeline
 - FastAPI backend
 - Next.js frontend
 - PostgreSQL integration
