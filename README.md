@@ -448,18 +448,18 @@ Grounded Response
 - Prompt System
 - Video pipeline
 - Query Pipeline
+- Summary Pipeline
 
 ---
 
 ## 🚧 In Progress
 
-- Summary Pipeline
+- Indexing Pipeline
 
 ---
 
 ## 📅 Upcoming
 
-- Indexing Pipeline
 - FastAPI backend
 - Next.js frontend
 - PostgreSQL integration
