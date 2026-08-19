@@ -65,3 +65,30 @@ class LLMService:
             answer=answer,
             source_chunks=source_chunks,
         )
+
+    def generate_from_prompt(
+        self,
+        prompt: str,
+    ) -> str:
+        """
+        Generate an LLM response from an already-rendered prompt.
+
+        This method is intended for specialized pipelines that construct
+        their own prompts through PromptFactory, such as SummaryPipeline.
+        Unlike generate_answer(), it does not rebuild the prompt through
+        the QA prompt builder.
+        """
+        response = ollama.chat(
+            model=self.model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            options={
+                "temperature": LLM_TEMPERATURE,
+            },
+        )
+
+        return response["message"]["content"]
