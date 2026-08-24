@@ -449,18 +449,18 @@ Grounded Response
 - Video pipeline
 - Query Pipeline
 - Summary Pipeline
+- Indexing Pipeline
 
 ---
 
 ## 🚧 In Progress
 
-- Indexing Pipeline
+- FastAPI backend
 
 ---
 
 ## 📅 Upcoming
 
-- FastAPI backend
 - Next.js frontend
 - PostgreSQL integration
 - Docker support
