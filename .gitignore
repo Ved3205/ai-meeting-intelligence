@@ -2,14 +2,20 @@ tests/
 temp/
 data/
 __pycache__/
-app/config/
-app/utils/
+
+.env
+.env.*
+!.env.example
+
 docs/file_structure.txt
 GitHub Workflow.txt
 reminders.txt
+
 app/services/SERVICES.md
 app/models/MODELS.md
 app/prompts/PROMPTS.md
 app/pipelines/PIPELINES.md
+
 video_pipeline_deliverable.zip
-.pytest_cache
+
+.pytest_cache/
