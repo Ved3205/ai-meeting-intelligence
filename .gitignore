@@ -16,6 +16,4 @@ app/models/MODELS.md
 app/prompts/PROMPTS.md
 app/pipelines/PIPELINES.md
 
-video_pipeline_deliverable.zip
-
 .pytest_cache/
