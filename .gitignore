@@ -15,5 +15,7 @@ app/services/SERVICES.md
 app/models/MODELS.md
 app/prompts/PROMPTS.md
 app/pipelines/PIPELINES.md
+app/api/routes/ROUTES.md
+app/api/schemas/SCHEMAS.md
 
 .pytest_cache/
