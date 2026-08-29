@@ -57,10 +57,21 @@ def _parse_args() -> argparse.Namespace:
 
 def _prompt_for_video() -> Path:
     print(HR)
-    print(" AI MEETING INTELLIGENCE — INDEXING")
+    print(" AI MEETING INTELLIGENCE - INDEXING")
     print(HR)
-    raw = input("\nEnter video path:\n> ").strip().strip('"')
-    return Path(raw)
+
+    while True:
+        try:
+            raw = input("\nEnter video path:\n> ").strip().strip('"')
+        except (EOFError, KeyboardInterrupt):
+            print("\nInput cancelled.")
+            raise SystemExit(1)
+
+        if not raw:
+            print("Please enter a video path.")
+            continue
+
+        return Path(raw)
 
 
 def _print_result(result) -> None:

@@ -144,9 +144,9 @@ class IndexingPipeline:
             resolve_directories: If True (default), any entry in
                 `video_paths` that is an existing directory is expanded,
                 non-recursively, into the video files it directly
-                contains (matched against
-                `VideoPipeline.SUPPORTED_VIDEO_EXTENSIONS` -- no second,
-                conflicting extension list is introduced). This is a
+                contains matched against
+                `SUPPORTED_VIDEO_EXTENSIONS` from `app.pipelines.video_pipeline` -- no
+                second, conflicting extension list is introduced. This is a
                 convenience feature, not a documented requirement (no
                 real PIPELINES.md was available to confirm directory
                 support); set this to False to disable it and treat
@@ -288,12 +288,20 @@ class IndexingPipeline:
         """
         if video_paths is None:
             raise ValueError("video_paths must not be None")
-        if not isinstance(video_paths, (list, tuple)):
+
+        if isinstance(video_paths, (str, Path)):
             raise ValueError(
-                f"video_paths must be a list or tuple of str/Path, got {type(video_paths).__name__}"
+                "video_paths must be a sequence of str/Path, not a single str or Path"
             )
+
+        if not isinstance(video_paths, Sequence):
+            raise ValueError(
+                f"video_paths must be a sequence of str/Path, got {type(video_paths).__name__}"
+            )
+
         if len(video_paths) == 0:
             raise ValueError("video_paths must not be empty")
+        
         for item in video_paths:
             if not isinstance(item, (str, Path)):
                 raise ValueError(
