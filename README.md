@@ -9,7 +9,8 @@
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?style=for-the-badge&logo=fastapi)
 ![Qdrant](https://img.shields.io/badge/Qdrant-VectorDB-red?style=for-the-badge)
-![Whisper](https://img.shields.io/badge/OpenAI-Whisper-black?style=for-the-badge)
+![Faster-Whisper](https://img.shields.io/badge/Faster--Whisper-black?style=for-the-badge)
+![Sentence Transformers](https://img.shields.io/badge/Sentence%20Transformers-black?style=for-the-badge)
 ![Ollama](https://img.shields.io/badge/Ollama-bge--m3-blueviolet?style=for-the-badge)
 ![RAG](https://img.shields.io/badge/RAG-Retrieval%20Augmented%20Generation-orange?style=for-the-badge)
 
