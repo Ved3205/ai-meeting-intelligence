@@ -25,6 +25,8 @@ the response body's `success`/`status`/`errors` fields communicate the
 outcome, faithfully mirroring what VideoPipeline itself already
 designed as its failure-reporting contract. A raised exception (the
 rare, undocumented case) is the only case that becomes an HTTP 500.
+Uses the existing `app.config.settings.UPLOAD_DIR` -- no second upload
+directory. See ROUTES.md for the full documented contract.
 """
 
 from __future__ import annotations
@@ -53,6 +55,14 @@ router = APIRouter(prefix="/api/v1/meetings", tags=["Meetings"])
     summary="Upload and index a meeting video",
     description="Saves the uploaded video and processes it through the existing VideoPipeline "
     "(audio extraction, transcription, metadata, chunking, embedding, Qdrant upload).",
+    responses={
+        413: {
+            "description": "Uploaded file is too large."
+        },
+        500: {
+            "description": "Unexpected error while processing the uploaded video."
+        },
+    },
 )
 async def upload_meeting(
     file: UploadFile = File(..., description="Meeting video file (mp4, mkv, mov, avi, webm, m4v)."),
