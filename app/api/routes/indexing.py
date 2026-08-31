@@ -29,9 +29,9 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from app.api.config import ApiConfig, get_api_config
 from app.api.dependencies import get_indexing_pipeline
 from app.api.schemas.indexing import IndexingEntryResponse, IndexingResponse
+from app.config.settings import UPLOAD_DIR
 from app.pipelines.indexing_pipeline import IndexingPipeline
 from app.pipelines.video_pipeline import SUPPORTED_VIDEO_EXTENSIONS
-from app.config.settings import UPLOAD_DIR
 from app.utils.file_utils import UnsupportedFileTypeError, UploadTooLargeError, save_upload
 
 logger = logging.getLogger(__name__)
@@ -45,6 +45,10 @@ router = APIRouter(prefix="/api/v1", tags=["Indexing"])
     summary="Bulk-index multiple meeting videos",
     description="Saves the uploaded videos and processes them as a batch through the existing "
     "IndexingPipeline, which itself calls VideoPipeline once per video.",
+    responses={
+        413: {"description": "One of the uploaded files exceeds the configured maximum size."},
+        500: {"description": "Unexpected error while processing the indexing batch."},
+    },
 )
 async def bulk_index_meetings(
     files: List[UploadFile] = File(..., description="One or more meeting video files."),

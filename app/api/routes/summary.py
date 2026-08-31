@@ -38,6 +38,14 @@ router = APIRouter(prefix="/api/v1/meetings", tags=["Summary"])
     response_model=SummaryResponse,
     summary="Generate meeting summary, title, keywords, and action items",
     description="Runs the existing SummaryPipeline against an already-indexed meeting.",
+    responses={
+        404: {
+            "description": "No indexed content found for this meeting_id."
+        },
+        500: {
+            "description": "Unexpected error while generating the summary."
+        },
+    },
 )
 def summarize_meeting(
     meeting_id: str,
