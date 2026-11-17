@@ -24,3 +24,15 @@ class MeetingInfoResponse(BaseModel):
 class MeetingListResponse(BaseModel):
     total: int
     meetings: List[MeetingInfoResponse] = Field(default_factory=list)
+
+
+class TranscriptSegmentResponse(BaseModel):
+    chunk_index: int
+    start_time: float
+    end_time: float
+    text: str
+
+
+class TranscriptResponse(BaseModel):
+    meeting_id: str
+    segments: List[TranscriptSegmentResponse] = Field(default_factory=list)
