@@ -1,572 +1,149 @@
-# 🎙️ AI Meeting Intelligence Platform
+# AI Meeting Intelligence
 
-<p align="center">
-  <img src="docs/AI-Meeting-Platform.png" alt="AI Meeting Intelligence Platform Architecture" width="100%">
-</p>
+A web app that turns meeting recordings into something you can search and ask questions about. You upload a video, it gets transcribed and indexed, and afterwards you can read a summary, browse the transcript, or ask things like "what did we decide about the deployment?" and get an answer with the exact passages and timestamps it came from.
 
-<p align="center">
+![Architecture](docs/AI-Meeting-Platform.png)
 
-![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?style=for-the-badge&logo=fastapi)
-![Qdrant](https://img.shields.io/badge/Qdrant-VectorDB-red?style=for-the-badge)
-![Faster-Whisper](https://img.shields.io/badge/Faster--Whisper-black?style=for-the-badge)
-![Sentence Transformers](https://img.shields.io/badge/Sentence%20Transformers-black?style=for-the-badge)
-![Ollama](https://img.shields.io/badge/Ollama-bge--m3-blueviolet?style=for-the-badge)
-![RAG](https://img.shields.io/badge/RAG-Retrieval%20Augmented%20Generation-orange?style=for-the-badge)
+## How it works
 
-</p>
+Uploading a meeting:
 
----
+1. FFmpeg pulls the audio out of the video.
+2. Whisper (faster-whisper) transcribes it into timestamped segments.
+3. The transcript is split into chunks of roughly 60 to 120 words.
+4. Each chunk is embedded with a sentence-transformers model and stored in Qdrant together with its text, timestamps and meeting info.
 
-# 📌 Overview
+Asking a question:
 
-**AI Meeting Intelligence Platform** is an AI-powered SaaS application that converts meeting recordings into a searchable organizational knowledge base.
+1. The question is embedded the same way.
+2. Qdrant returns the closest chunks (optionally only from one meeting).
+3. Those chunks and the question go into a prompt for a local LLM running in Ollama.
+4. The answer comes back with the chunks it was based on and a confidence score, which is the average similarity of those chunks.
 
-Instead of manually searching through long meeting recordings or transcripts, users can upload meetings and ask natural language questions such as:
+Summaries work on the indexed chunks of a meeting and produce a title, summary, keywords and action items. They are saved after the first run.
 
-- What decisions were made?
-- What are my action items?
-- Who is responsible for deployment?
-- Summarize yesterday's meeting.
-- What was discussed about authentication?
+The full design, with diagrams for every step, is in [docs/architecture.md](docs/architecture.md).
 
-The platform combines **Speech-to-Text**, **Semantic Search**, **Vector Databases**, **RAG (Retrieval Augmented Generation)** and **Large Language Models** to provide grounded, timestamp-aware answers.
+## Tech stack
 
----
+| Part | What we use |
+| --- | --- |
+| Backend | Python, FastAPI |
+| Speech to text | faster-whisper (`base` model, CPU) |
+| Embeddings | sentence-transformers, `BAAI/bge-small-en-v1.5` |
+| Vector database | Qdrant |
+| LLM | Ollama, `llama3.1` |
+| Frontend | Next.js, TypeScript, Tailwind CSS, TanStack Query |
 
-# 🚀 Vision
-
-Transform meetings into an intelligent organizational memory where every discussion can be searched, summarized, and understood using AI.
-
----
-
-# 🎯 Problem Statement
-
-Organizations spend hundreds of hours in meetings.
-
-After meetings end,
-
-- Important decisions are forgotten
-- Action items are lost
-- Team members miss discussions
-- Searching recordings is time-consuming
-- Knowledge remains trapped inside videos
-
-This platform solves these problems by automatically converting meetings into searchable AI knowledge.
-
----
-
-# ✨ Features
-
-## Current
-
-- Meeting indexing pipeline
-- Embedding generation using Ollama (bge-m3)
-- Vector storage using Qdrant
-- Chunk-based semantic indexing
-
----
-
-## Planned
-
-- Video Upload
-- Audio Extraction
-- Whisper Speech-to-Text
-- Intelligent Transcript Chunking
-- Meeting Summaries
-- Action Item Detection
-- Decision Extraction
-- Topic Detection
-- Sentiment Analysis
-- AI Chat with Meetings
-- Workspace Support
-- User Authentication
-- Multi-language Support
-- PDF/DOCX Export
-- FastAPI Backend
-- Next.js Frontend
-
----
-
-# 🏗 Project Architecture
-
-The complete architecture is under developement and will be updated shortly.
-
-
----
-
-# 🧠 System Workflow
+## Project layout
 
 ```
-User Uploads Meeting
-
-        │
-
-        ▼
-
-Video Pipeline
-
-        │
-
-        ▼
-
-FFmpeg
-Extract Audio
-
-        │
-
-        ▼
-
-Whisper
-
-Speech → Text
-
-        │
-
-        ▼
-
-Chunking Service
-
-Split Transcript
-
-        │
-
-        ▼
-
-Embedding Service
-
-Generate Embeddings
-
-        │
-
-        ▼
-
-Qdrant
-
-Store Vectors
-
-        │
-
-        ▼
-
-User asks Question
-
-        │
-
-        ▼
-
-Query Embedding
-
-        │
-
-        ▼
-
-Vector Search
-
-        │
-
-        ▼
-
-Top Relevant Chunks
-
-        │
-
-        ▼
-
-LLM
-
-Generate Final Answer
-
-        │
-
-        ▼
-
-Answer + Sources + Timestamps
+app/
+  api/          FastAPI routes and request/response schemas
+  config/       settings (models, chunk sizes, Qdrant, LLM)
+  models/       dataclasses passed between the layers
+  pipelines/    video, indexing, query and summary workflows
+  prompts/      prompt builders and the factory that picks them
+  services/     transcription, chunking, embeddings, retrieval, LLM, ...
+  utils/        ffmpeg, file and JSON helpers
+  vectorstore/  Qdrant client wrapper
+docs/           architecture notes and diagram
+frontend/       Next.js app
+scripts/        small command line scripts to try each pipeline
 ```
 
----
+Pipelines decide what happens and in which order, services do the actual work, and models are just the data that moves between them.
 
-# 🧩 Tech Stack
+## Running it locally
 
-## Backend
+You need:
 
-- Python
-- FastAPI *(Planned)*
+- Python 3.11 or newer
+- Node.js 20 or newer
+- FFmpeg on your PATH
+- Qdrant on port 6333
+- Ollama with the `llama3.1` model
 
----
-
-## AI
-
-- Whisper
-- Ollama
-- bge-m3 Embeddings
-- Retrieval Augmented Generation (RAG)
-
----
-
-## Vector Database
-
-- Qdrant
-
----
-
-## Database
-
-- PostgreSQL *(Planned)*
-
----
-
-## Frontend
-
-- Next.js *(Planned)*
-
----
-
-## File Storage
-
-- Local Storage *(Current)*
-- Cloud Storage *(Future)*
-
----
-
-## Future Scaling
-
-- Kafka
-- Redis
-- Docker
-- Docker Compose
-
----
-
-# 📂 Project Structure
+Start Qdrant and pull the model:
 
 ```
-ai-meeting-intelligence/
-
-│
-├── app/
-│
-├── pipelines/
-│
-├── services/
-│
-├── vectorstore/
-│
-├── config/
-│
-├── models/
-│
-├── prompts/
-│
-├── utils/
-│
-├── database/
-│
-├── api/
-│
-├── data/
-│
-├── tests/
-│
-├── docs/
-│
-├── notebooks/
-│
-├── scripts/
-│
-└── docker/
+docker run -p 6333:6333 qdrant/qdrant
+ollama pull llama3.1
 ```
 
----
-
-# 🔄 Processing Pipeline
-
-## 1. Upload
-
-User uploads
+Backend, from the project root:
 
 ```
-meeting.mp4
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-↓
+It runs on http://localhost:8000 and the interactive API docs are at http://localhost:8000/docs. The first upload is slow because the Whisper and embedding models are downloaded and loaded.
 
-Stored inside
-
-```
-data/uploads/
-```
-
----
-
-## 2. Audio Extraction
-
-FFmpeg converts
+Frontend, in another terminal:
 
 ```
-MP4
-
-↓
-
-WAV
+cd frontend
+npm install
+npm run dev
 ```
 
-Stored in
+Open http://localhost:3000.
+
+To try a pipeline without the web app, the scripts folder has one for each, for example:
 
 ```
-data/audio/
+python scripts/test_video_pipeline.py path/to/meeting.mp4
 ```
 
----
+## API
 
-## 3. Transcription
+| Method | Path | What it does |
+| --- | --- | --- |
+| GET | `/health` | liveness check |
+| POST | `/api/v1/uploads` | upload a video, processing runs in the background, returns a job id |
+| GET | `/api/v1/uploads/{job_id}` | job status and current stage |
+| POST | `/api/v1/meetings/upload` | upload and process in a single request (slow) |
+| POST | `/api/v1/indexing` | upload several videos at once |
+| GET | `/api/v1/meetings` | list indexed meetings |
+| GET | `/api/v1/meetings/{id}` | one meeting |
+| GET | `/api/v1/meetings/{id}/transcript` | transcript by chunk |
+| DELETE | `/api/v1/meetings/{id}` | remove a meeting from the index |
+| POST | `/api/v1/meetings/{id}/summary` | generate a summary (`?refresh=true` to redo it) |
+| GET | `/api/v1/meetings/{id}/summary` | saved summary |
+| POST | `/api/v1/meetings/{id}/query` | ask a question about one meeting |
+| POST | `/api/v1/query` | ask a question across all meetings |
 
-Whisper converts
+## Configuration
 
-```
-Audio
+Models, chunk sizes, the Qdrant address and the retrieval settings are in [app/config/settings.py](app/config/settings.py).
 
-↓
+A few things can be set with environment variables:
 
-Transcript
-```
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `CORS_ALLOW_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` | origins allowed to call the API |
+| `MAX_UPLOAD_SIZE_BYTES` | 500 MB | largest accepted video |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | backend address used by the frontend |
 
-Stored in
+Supported video formats are mp4, mkv, mov, avi, webm and m4v.
 
-```
-data/transcripts/
-```
+## Known limitations
 
----
+- Upload jobs are kept in memory, so they are lost when the server restarts.
+- Videos are processed one at a time.
+- The meeting list is read from Qdrant, so meetings indexed before upload dates were stored show no date.
+- The original video is not served back, so the app cannot jump to a timestamp in the recording.
+- No users or login, everything is in one shared space.
 
-## 4. Chunking
+## Ideas for later
 
-Transcript
+PostgreSQL for meeting records, user accounts and workspaces, export to PDF or DOCX, decision and topic extraction, and background workers with a queue for heavier loads.
 
-↓
+## Authors
 
-Semantic Chunks
+Vednarayan Hiralkar and Arjun Dasalkar, B.Tech Computer Science and Engineering (2023 to 2027).
 
-Stored inside
+## License
 
-```
-data/chunks/
-```
-
----
-
-## 5. Embeddings
-
-Each chunk
-
-↓
-
-Embedding Vector
-
-Generated using
-
-```
-bge-m3
-```
-
-through
-
-```
-Ollama
-```
-
----
-
-## 6. Vector Database
-
-Embeddings
-
-↓
-
-Stored in
-
-```
-Qdrant
-```
-
-with metadata:
-
-- Meeting ID
-- Chunk ID
-- Timestamps
-- Meeting Title
-- Transcript Text
-
----
-
-## 7. Retrieval
-
-User Question
-
-↓
-
-Embedding
-
-↓
-
-Qdrant Search
-
-↓
-
-Top-K Relevant Chunks
-
----
-
-## 8. LLM
-
-Retrieved Context
-
-+
-
-User Question
-
-↓
-
-LLM
-
-↓
-
-Grounded Response
-
----
-
-# 📌 Current Development Status
-
-## ✅ Completed
-
-- Project architecture
-- Embedding service
-- Qdrant integration
-- Meeting indexing pipeline
-- Initial testing
-- Whisper transcription service
-- Chunking service
-- Prompt System
-- Video pipeline
-- Query Pipeline
-- Summary Pipeline
-- Indexing Pipeline
-
----
-
-## 🚧 In Progress
-
-- FastAPI backend
-
----
-
-## 📅 Upcoming
-
-- Next.js frontend
-- PostgreSQL integration
-- Docker support
-
----
-
-# 🧪 Current Modules
-
-## Embedding Service
-
-Responsible for:
-
-- Sending transcript chunks to Ollama
-- Generating embeddings
-- Returning embedding vectors
-
----
-
-## Qdrant Client
-
-Responsible for:
-
-- Creating collections
-- Uploading vectors
-- Managing vector database
-
----
-
-## Indexing Pipeline
-
-Responsible for:
-
-- Reading chunk JSON files
-- Calling Embedding Service
-- Creating vector collection
-- Uploading vectors into Qdrant
-
----
-
-# 🎯 Future AI Capabilities
-
-- Meeting Summaries
-- Decision Detection
-- Action Item Extraction
-- Topic Detection
-- Semantic Search
-- Cross Meeting Search
-- Knowledge Base Chat
-- Team Memory
-- Workspace Search
-
----
-
-# 📊 Future Scalability
-
-Future enterprise architecture includes
-
-- Kafka Event Streaming
-- Worker-based Processing
-- Redis Cache
-- PostgreSQL
-- Docker Deployment
-- Cloud Storage
-- Background Workers
-
-allowing the platform to process thousands of meetings simultaneously.
-
----
-
-# 📖 Learning Objectives
-
-This project is designed to gain hands-on experience with:
-
-- Python Backend Development
-- AI Engineering
-- Retrieval Augmented Generation
-- Vector Databases
-- Whisper
-- Ollama
-- Embedding Models
-- FastAPI
-- Docker
-- Kafka
-- PostgreSQL
-- Software Architecture
-- Production-grade Project Structure
-
----
-
-# 👨‍💻 Author
-
-**Vednarayan Hiralkar**
-
-B.Tech Computer Science & Engineering (2023–2027)
-
-
-**Arjun Dasalkar**
-
-B.Tech Computer Science & Engineering (2023–2027)
-
-
----
-
-# ⭐ Project Status
-
-🚧 Active Development
-
-This repository is currently under active development. New features and improvements are being added incrementally following a production-oriented architecture.
+See [LICENSE](LICENSE).
