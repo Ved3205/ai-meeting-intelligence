@@ -63,6 +63,8 @@ class Chunk:
 
                 "project": self.metadata.project,
 
+                "uploaded_at": self.metadata.uploaded_at.isoformat(),
+
             })
 
         return payload
