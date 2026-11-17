@@ -36,6 +36,10 @@ from functools import lru_cache
 from typing import List
 
 
+# Local Next.js dev server; override with CORS_ALLOW_ORIGINS.
+_DEFAULT_CORS_ORIGINS = "http://localhost:3000,http://127.0.0.1:3000"
+
+
 def _parse_cors_origins(raw: str) -> List[str]:
     """
     Parse comma-separated CORS origins from an environment variable.
@@ -67,7 +71,7 @@ class ApiConfig:
 
     cors_allow_origins: List[str] = field(
         default_factory=lambda: _parse_cors_origins(
-            os.getenv("CORS_ALLOW_ORIGINS", "")
+            os.getenv("CORS_ALLOW_ORIGINS", _DEFAULT_CORS_ORIGINS)
         )
     )
 
