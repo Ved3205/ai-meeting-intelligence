@@ -30,6 +30,7 @@ from app.pipelines.summary_pipeline import SummaryPipeline
 from app.pipelines.video_pipeline import VideoPipeline
 from app.services.job_service import JobService
 from app.services.meeting_library_service import MeetingLibraryService
+from app.services.summary_cache_service import SummaryCacheService
 
 
 @lru_cache
@@ -55,6 +56,11 @@ def get_meeting_library() -> MeetingLibraryService:
 @lru_cache
 def get_job_service() -> JobService:
     return JobService()
+
+
+@lru_cache
+def get_summary_cache() -> SummaryCacheService:
+    return SummaryCacheService()
 
 
 @lru_cache
