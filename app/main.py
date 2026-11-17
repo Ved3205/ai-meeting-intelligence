@@ -60,9 +60,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS is only configured if CORS_ALLOW_ORIGINS is set -- no wildcard
-# default, and no unrequested infrastructure. Set e.g.
-# CORS_ALLOW_ORIGINS="http://localhost:3000".
+# CORS allows the local frontend by default; set CORS_ALLOW_ORIGINS to change it.
 if api_config.cors_allow_origins:
     app.add_middleware(
         CORSMiddleware,
