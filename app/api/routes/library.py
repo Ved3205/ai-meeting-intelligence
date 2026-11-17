@@ -4,6 +4,7 @@ app/api/routes/library.py
 GET /api/v1/meetings              list indexed meetings
 GET /api/v1/meetings/{meeting_id} one meeting
 GET /api/v1/meetings/{meeting_id}/transcript  transcript by chunk
+DELETE /api/v1/meetings/{meeting_id}          remove a meeting from the index
 """
 
 from __future__ import annotations
@@ -11,7 +12,7 @@ from __future__ import annotations
 import logging
 from dataclasses import asdict
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 
 from app.api.dependencies import get_meeting_library
 from app.api.schemas.library import (
@@ -88,3 +89,25 @@ def get_transcript(
             for c in chunks
         ],
     )
+
+
+@router.delete(
+    "/{meeting_id}",
+    status_code=204,
+    summary="Delete a meeting",
+    description="Removes every indexed chunk of the meeting.",
+    responses={404: {"description": "No indexed meeting with this id."}},
+)
+def delete_meeting(
+    meeting_id: str, library: MeetingLibraryService = Depends(get_meeting_library)
+) -> Response:
+    try:
+        if library.get_meeting(meeting_id) is None:
+            raise HTTPException(status_code=404, detail=f"Meeting not found: {meeting_id}")
+        library.delete_meeting(meeting_id)
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Deleting meeting failed (meeting_id=%s)", meeting_id)
+        raise HTTPException(status_code=500, detail="Unable to delete the meeting.")
+    return Response(status_code=204)
