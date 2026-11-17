@@ -209,6 +209,7 @@ class VideoPipeline:
         uploaded_by: Optional[str] = None,
         workspace: Optional[str] = None,
         project: Optional[str] = None,
+        on_stage: Optional[Callable[[str], None]] = None,
     ) -> PipelineResult:
         """
         Execute the full video ingestion pipeline.
@@ -220,6 +221,7 @@ class VideoPipeline:
             uploaded_by: Optional identifier of the uploading user.
             workspace: Optional workspace identifier.
             project: Optional project identifier.
+            on_stage: Optional callback called with the name of each stage as it starts.
 
         Returns:
             A `PipelineResult` describing the outcome. `success` is False
@@ -230,6 +232,10 @@ class VideoPipeline:
         errors: List[str] = []
         warnings: List[str] = []
         video_path = Path(video_path)
+
+        def stage(name: str) -> None:
+            if on_stage:
+                on_stage(name)
 
         logger.info("Starting video pipeline for '%s'", video_path)
 
@@ -248,6 +254,7 @@ class VideoPipeline:
 
             # Step 3: Extract audio -------------------------------------
             try:
+                stage("extracting_audio")
                 logger.info("Extracting audio...")
                 meeting_audio_dir = self._audio_output_dir / meeting.meeting_id
                 audio = self._audio_extractor(video_path, meeting_audio_dir)
@@ -264,6 +271,7 @@ class VideoPipeline:
 
             # Step 4: Transcribe -----------------------------------------
             try:
+                stage("transcribing")
                 logger.info("Starting transcription...")
                 transcript = self.transcription_service.transcribe(meeting.meeting_id, audio)
                 logger.info(
@@ -278,6 +286,7 @@ class VideoPipeline:
 
             # Step 5: Generate metadata ------------------------------------
             try:
+                stage("chunking")
                 logger.info("Generating metadata...")
                 metadata = self.metadata_service.generate(meeting, audio, transcript)
                 logger.info("Finished metadata generation.")
@@ -312,6 +321,7 @@ class VideoPipeline:
 
             # Step 7: Generate embeddings ------------------------------------
             try:
+                stage("embedding")
                 logger.info("Generating embeddings for %d chunks...", len(chunks))
                 chunks = self.embedding_service.embed_chunks(chunks)
                 logger.info("Finished embedding generation.")
@@ -331,6 +341,7 @@ class VideoPipeline:
 
             # Step 8: Upload to Qdrant -----------------------------------------
             try:
+                stage("indexing")
                 logger.info("Uploading vectors...")
                 self.vector_store_service.upload_chunks(chunks)
                 logger.info("Finished upload.")
