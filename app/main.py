@@ -34,7 +34,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.config import get_api_config
-from app.api.routes import health, indexing, meetings, query, summary
+from app.api.routes import health, indexing, library, meetings, query, summary
 from app.config.settings import UPLOAD_DIR
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s")
@@ -85,6 +85,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 
 app.include_router(health.router)
 app.include_router(meetings.router)
+app.include_router(library.router)
 app.include_router(query.router)
 app.include_router(summary.router)
 app.include_router(indexing.router)
