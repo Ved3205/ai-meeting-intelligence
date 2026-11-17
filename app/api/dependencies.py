@@ -28,6 +28,7 @@ from app.pipelines.indexing_pipeline import IndexingPipeline
 from app.pipelines.query_pipeline import QueryPipeline
 from app.pipelines.summary_pipeline import SummaryPipeline
 from app.pipelines.video_pipeline import VideoPipeline
+from app.services.meeting_library_service import MeetingLibraryService
 
 
 @lru_cache
@@ -43,6 +44,11 @@ def get_query_pipeline() -> QueryPipeline:
 @lru_cache
 def get_summary_pipeline() -> SummaryPipeline:
     return SummaryPipeline()
+
+
+@lru_cache
+def get_meeting_library() -> MeetingLibraryService:
+    return MeetingLibraryService()
 
 
 @lru_cache
