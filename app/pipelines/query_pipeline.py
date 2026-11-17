@@ -25,10 +25,8 @@ This module contains ONLY orchestration logic, mirroring the style of
   success/error fields, and the calling layer (API route, CLI, etc.)
   needs the real exception, not a masked one. Failures are logged with
   context and re-raised.
-- `Query` has no documented `meeting_id` field, and `RetrievalService`
-  is documented as accepting only a `Query`. This pipeline therefore
-  cannot filter retrieval by meeting -- that capability does not exist
-  in the documented contract, so it isn't invented here.
+- `Query` carries an optional `meeting_id`; when set, retrieval is
+  filtered to that meeting, otherwise it searches every indexed meeting.
 
 Confidence
 ----------
@@ -99,6 +97,7 @@ class QueryPipeline:
         *,
         top_k: int = 5,
         score_threshold: float = 0.70,
+        meeting_id: Optional[str] = None,
     ) -> Response:
         """
         Execute the full query pipeline for a single question.
@@ -108,6 +107,8 @@ class QueryPipeline:
             top_k: Maximum number of chunks to retrieve.
             score_threshold: Minimum similarity score for a retrieved
                 chunk to be considered relevant.
+            meeting_id: Restrict retrieval to this meeting. None searches
+                all indexed meetings.
 
         Returns:
             A `Response` containing the grounded answer, the retrieved
@@ -124,7 +125,12 @@ class QueryPipeline:
         logger.info("Starting query pipeline")
 
         self._validate_inputs(question, top_k, score_threshold)
-        query = Query(question=question.strip(), top_k=top_k, score_threshold=score_threshold)
+        query = Query(
+            question=question.strip(),
+            top_k=top_k,
+            score_threshold=score_threshold,
+            meeting_id=meeting_id,
+        )
         logger.info(
             "Query validated (top_k=%d, score_threshold=%.2f)", top_k, score_threshold
         )

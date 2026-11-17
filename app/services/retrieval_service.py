@@ -5,6 +5,7 @@ Handles semantic search using Qdrant.
 """
 
 from qdrant_client import QdrantClient
+from qdrant_client.models import FieldCondition, Filter, MatchValue
 
 from app.config.settings import (
     COLLECTION_NAME,
@@ -43,9 +44,21 @@ class RetrievalService:
             )
         )
 
+        query_filter = None
+        if query.meeting_id:
+            query_filter = Filter(
+                must=[
+                    FieldCondition(
+                        key="meeting_id",
+                        match=MatchValue(value=query.meeting_id),
+                    )
+                ]
+            )
+
         search_results = self.client.query_points(
             collection_name=COLLECTION_NAME,
             query=query_vector,
+            query_filter=query_filter,
             limit=query.top_k,
             # score_threshold=query.score_threshold,
         )

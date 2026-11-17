@@ -10,22 +10,19 @@ POST /api/v1/meetings/{meeting_id}/query
 QueryRequest
       |
       v
-QueryPipeline.run(question, top_k, score_threshold)  <-- unmodified
+QueryPipeline.run(question, top_k, score_threshold, meeting_id)
       |
       v
 QueryResponse
 
-See app/api/schemas/query.py's module docstring for the disclosed
-meeting_id-scoping limitation. This route does NOT filter
-`result.retrieved_chunks` by meeting_id after the fact -- per explicit
-instruction, QueryPipeline's current behavior is left completely
-unchanged; the limitation is only ever disclosed, never hidden or
-silently "fixed" at the API layer.
+POST /api/v1/query does the same without a meeting_id and searches
+every indexed meeting.
 """
 
 from __future__ import annotations
 
 import logging
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -35,26 +32,20 @@ from app.pipelines.query_pipeline import QueryPipeline
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/meetings", tags=["Query"])
+router = APIRouter(prefix="/api/v1", tags=["Query"])
 
 
-@router.post(
-    "/{meeting_id}/query",
-    response_model=QueryResponse,
-    summary="Ask a question about indexed meetings",
-    description="Runs the existing QueryPipeline. NOTE: retrieval is currently NOT scoped to "
-    "meeting_id -- see the response's retrieval_scope_warning field and ROUTES.md.",
-)
-def query_meeting(
-    meeting_id: str,
+def _run_query(
     request: QueryRequest,
-    query_pipeline: QueryPipeline = Depends(get_query_pipeline),
+    query_pipeline: QueryPipeline,
+    meeting_id: Optional[str],
 ) -> QueryResponse:
-    logger.info("Query request received (meeting_id=%s)", meeting_id)
-
     try:
         result = query_pipeline.run(
-            request.question, top_k=request.top_k, score_threshold=request.score_threshold
+            request.question,
+            top_k=request.top_k,
+            score_threshold=request.score_threshold,
+            meeting_id=meeting_id,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -84,3 +75,32 @@ def query_meeting(
             for chunk in result.retrieved_chunks
         ],
     )
+
+
+@router.post(
+    "/meetings/{meeting_id}/query",
+    response_model=QueryResponse,
+    summary="Ask a question about one meeting",
+    description="Runs the QueryPipeline with retrieval limited to the given meeting.",
+)
+def query_meeting(
+    meeting_id: str,
+    request: QueryRequest,
+    query_pipeline: QueryPipeline = Depends(get_query_pipeline),
+) -> QueryResponse:
+    logger.info("Query request received (meeting_id=%s)", meeting_id)
+    return _run_query(request, query_pipeline, meeting_id)
+
+
+@router.post(
+    "/query",
+    response_model=QueryResponse,
+    summary="Ask a question across all meetings",
+    description="Runs the QueryPipeline over every indexed meeting.",
+)
+def query_all_meetings(
+    request: QueryRequest,
+    query_pipeline: QueryPipeline = Depends(get_query_pipeline),
+) -> QueryResponse:
+    logger.info("Query request received (all meetings)")
+    return _run_query(request, query_pipeline, None)
