@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Chat } from "@/components/chat/chat";
+import { CategorySelect } from "@/components/meetings/category-controls";
 import { MeetingTile } from "@/components/meetings/meeting-tile";
 import { SummaryTab } from "@/components/meetings/summary-tab";
 import { TranscriptTab } from "@/components/meetings/transcript-tab";
@@ -102,6 +103,7 @@ export default function MeetingPage() {
               <Meta icon={Calendar}>{formatDate(meeting.uploaded_at)}</Meta>
               <Meta icon={Layers}>{meeting.total_chunks} chunks</Meta>
               {meeting.language && <Meta icon={Globe}>{meeting.language.toUpperCase()}</Meta>}
+              <CategorySelect meetingId={meeting.meeting_id} className="h-7" />
             </div>
           </div>
 
