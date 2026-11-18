@@ -25,12 +25,10 @@ from app.config.settings import (
 )
 
 from app.models.chunk import Chunk
+from app.vectorstore.shared_client import get_qdrant_client
 class VectorStoreService:
     def __init__(self):
-        self.client = QdrantClient(
-            host=QDRANT_HOST,
-            port=QDRANT_PORT,
-        )
+        self.client = get_qdrant_client()
         self._create_collection()
     def _create_collection(self):
         collections = [

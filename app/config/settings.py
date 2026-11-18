@@ -4,6 +4,8 @@ Application Configuration
 Central place for all configurable values.
 """
 
+import os
+import sys
 from pathlib import Path
 
 # =============================================================================
@@ -12,7 +14,20 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-DATA_DIR = PROJECT_ROOT / "data"
+# Packaged builds keep user data outside the install folder.
+FROZEN = getattr(sys, "frozen", False)
+
+if os.environ.get("APP_DATA_DIR"):
+    _APP_HOME = Path(os.environ["APP_DATA_DIR"])
+elif FROZEN:
+    _APP_HOME = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AIMeeting"
+else:
+    _APP_HOME = PROJECT_ROOT
+
+DATA_DIR = _APP_HOME / "data"
+
+# Folder with bundled models (empty/missing means download from the hub).
+MODELS_DIR = Path(os.environ.get("MODELS_DIR", PROJECT_ROOT / "models"))
 
 UPLOAD_DIR = DATA_DIR / "uploads"
 
@@ -20,13 +35,16 @@ AUDIO_DIR = DATA_DIR / "audio"
 
 TRANSCRIPT_DIR = DATA_DIR / "transcripts"
 
-LOG_DIR = PROJECT_ROOT / "logs"
+LOG_DIR = _APP_HOME / "logs"
 
 # =============================================================================
 # WHISPER CONFIGURATION
 # =============================================================================
 
 WHISPER_MODEL = "base"
+
+if (MODELS_DIR / "whisper-base").is_dir():
+    WHISPER_MODEL = str(MODELS_DIR / "whisper-base")
 
 WHISPER_DEVICE = "cpu"
 # "cuda" if using NVIDIA GPU
@@ -62,6 +80,9 @@ CHUNK_OVERLAP_SEGMENTS = 1
 
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 
+if (MODELS_DIR / "bge-small-en-v1.5").is_dir():
+    EMBEDDING_MODEL = str(MODELS_DIR / "bge-small-en-v1.5")
+
 EMBEDDING_PROVIDER = "sentence_transformers"
 
 EMBEDDING_DEVICE = "cpu"
@@ -80,6 +101,11 @@ EMBEDDING_DIMENSION = 384
 QDRANT_HOST = "localhost"
 
 QDRANT_PORT = 6333
+
+# Set to use embedded on-disk Qdrant instead of a server.
+QDRANT_PATH = os.environ.get("QDRANT_PATH") or (
+    str(DATA_DIR / "qdrant") if os.environ.get("EMBEDDED_QDRANT") == "1" or FROZEN else None
+)
 
 COLLECTION_NAME = "meeting_chunks"
 

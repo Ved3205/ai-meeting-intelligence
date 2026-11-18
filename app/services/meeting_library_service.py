@@ -7,8 +7,9 @@ Reads meetings back out of Qdrant (list, detail, transcript, delete).
 from qdrant_client import QdrantClient
 from qdrant_client.models import FieldCondition, Filter, FilterSelector, MatchValue
 
-from app.config.settings import COLLECTION_NAME, QDRANT_HOST, QDRANT_PORT
+from app.config.settings import COLLECTION_NAME
 from app.models.meeting_info import MeetingInfo
+from app.vectorstore.shared_client import get_qdrant_client
 
 _PAGE_SIZE = 256
 
@@ -20,7 +21,7 @@ def _meeting_filter(meeting_id: str) -> Filter:
 class MeetingLibraryService:
 
     def __init__(self, client: QdrantClient | None = None):
-        self.client = client or QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+        self.client = client or get_qdrant_client()
 
     def _scroll(self, query_filter: Filter | None = None):
         # Collection is only created on first upload.

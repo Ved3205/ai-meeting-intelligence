@@ -19,3 +19,8 @@ app/api/routes/ROUTES.md
 app/api/schemas/SCHEMAS.md
 
 .pytest_cache/
+.venv/
+models/
+build/
+dist/
+*.spec.bak
