@@ -29,7 +29,7 @@ export function ActivityList({ meetings, loading }: { meetings: Meeting[]; loadi
           {recent.map((m) => (
             <li key={m.meeting_id}>
               <Link
-                href={`/meetings/${m.meeting_id}`}
+                href={`/meeting?id=${m.meeting_id}`}
                 className="flex items-start gap-3 px-5 py-3 transition-colors hover:bg-muted/60"
               >
                 <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-success-soft text-success">

@@ -146,7 +146,7 @@ export function UploadRow({
               <Badge tone="success">{job.total_chunks} chunks indexed</Badge>
               {job.meeting_id && (
                 <Link
-                  href={`/meetings/${job.meeting_id}`}
+                  href={`/meeting?id=${job.meeting_id}`}
                   className="text-sm font-medium text-primary hover:underline"
                 >
                   Open meeting

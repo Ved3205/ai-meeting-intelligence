@@ -3,8 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Calendar, Clock, Globe, Layers, Trash2, Video } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { Chat } from "@/components/chat/chat";
 import { CategorySelect } from "@/components/meetings/category-controls";
 import { MeetingTile } from "@/components/meetings/meeting-tile";
@@ -33,8 +33,8 @@ function Meta({ icon: Icon, children }: { icon: React.ElementType; children: Rea
   );
 }
 
-export default function MeetingPage() {
-  const { id } = useParams<{ id: string }>();
+function MeetingDetail() {
+  const id = useSearchParams().get("id") ?? "";
   const router = useRouter();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<TabId>("summary");
@@ -155,5 +155,13 @@ export default function MeetingPage() {
         </Card>
       )}
     </>
+  );
+}
+
+export default function MeetingPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-28" />}>
+      <MeetingDetail />
+    </Suspense>
   );
 }

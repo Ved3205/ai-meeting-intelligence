@@ -47,7 +47,7 @@ export default function ActionItemsPage() {
                     <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">{r.owner ?? "-"}</td>
                     <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">{r.deadline ?? "-"}</td>
                     <td className="px-5 py-3">
-                      <Link href={`/meetings/${r.meetingId}`} className="font-medium text-primary hover:underline">
+                      <Link href={`/meeting?id=${r.meetingId}`} className="font-medium text-primary hover:underline">
                         {r.meetingTitle}
                       </Link>
                     </td>

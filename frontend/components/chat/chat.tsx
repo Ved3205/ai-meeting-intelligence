@@ -55,7 +55,7 @@ function Sources({ sources, showMeeting }: { sources: SourceChunk[]; showMeeting
                 {formatTime(s.start_time)} - {formatTime(s.end_time)}
               </span>
               {showMeeting && (
-                <Link href={`/meetings/${s.meeting_id}`} className="font-medium text-foreground hover:underline">
+                <Link href={`/meeting?id=${s.meeting_id}`} className="font-medium text-foreground hover:underline">
                   {s.title ?? "Meeting"}
                 </Link>
               )}

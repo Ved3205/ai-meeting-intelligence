@@ -57,7 +57,7 @@ export function RecentMeetings({ meetings, loading }: { meetings: Meeting[]; loa
               {recent.map((m) => (
                 <tr key={m.meeting_id} className="transition-colors hover:bg-muted/60">
                   <td className="max-w-[16rem] px-5 py-3">
-                    <Link href={`/meetings/${m.meeting_id}`} className="block truncate font-medium hover:text-primary">
+                    <Link href={`/meeting?id=${m.meeting_id}`} className="block truncate font-medium hover:text-primary">
                       {m.title ?? "Untitled meeting"}
                     </Link>
                   </td>
