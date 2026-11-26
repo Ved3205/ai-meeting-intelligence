@@ -146,7 +146,7 @@ PostgreSQL for meeting records, user accounts and workspaces, export to PDF or D
 
 ## Authors
 
-Vednarayan Hiralkar and Arjun Dasalkar, B.Tech Computer Science and Engineering (2023 to 2027).
+Siddhesh Bawaskar, Vednarayan Hiralkar and Arjun Dasalkar, B.Tech Computer Science and Engineering (2023 to 2027).
 
 ## License
 

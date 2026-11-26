@@ -9,7 +9,7 @@ use tao::dpi::LogicalSize;
 use tao::event::{Event, WindowEvent};
 use tao::event_loop::{ControlFlow, EventLoopBuilder};
 use tao::window::WindowBuilder;
-use wry::WebViewBuilder;
+use wry::{WebContext, WebViewBuilder};
 
 const PORT: u16 = 18765;
 const CREATE_NO_WINDOW: u32 = 0x0800_0000;
@@ -46,7 +46,9 @@ fn main() {
         .with_inner_size(LogicalSize::new(1366.0, 860.0))
         .build(&event_loop)
         .unwrap();
-    let webview = WebViewBuilder::new().with_url(LOADING).build(&window).unwrap();
+    let data = std::env::var("LOCALAPPDATA").map(|d| std::path::PathBuf::from(d).join("AIMeeting").join("webview")).ok();
+    let mut ctx = WebContext::new(data);
+    let webview = WebViewBuilder::new_with_web_context(&mut ctx).with_url(LOADING).build(&window).unwrap();
 
     std::thread::spawn(move || {
         for _ in 0..180 {

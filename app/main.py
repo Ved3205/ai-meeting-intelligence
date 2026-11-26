@@ -111,6 +111,9 @@ if _frontend_dir and Path(_frontend_dir).is_dir():
             fixed = path[: len(path) - len(name)] + head + "/" + tail + ".txt"
             if (Path(_frontend_dir) / fixed.lstrip("/")).is_file():
                 request.scope["path"] = fixed
-        return await call_next(request)
+        response = await call_next(request)
+        if not path.startswith(("/api", "/_next")):
+            response.headers["Cache-Control"] = "no-cache"
+        return response
 
     app.mount("/", _static, name="frontend")
