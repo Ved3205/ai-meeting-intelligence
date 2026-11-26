@@ -98,4 +98,19 @@ app.include_router(indexing.router)
 # Serve the exported frontend last so API routes win.
 _frontend_dir = os.environ.get("FRONTEND_DIR")
 if _frontend_dir and Path(_frontend_dir).is_dir():
-    app.mount("/", StaticFiles(directory=_frontend_dir, html=True), name="frontend")
+    _static = StaticFiles(directory=_frontend_dir, html=True)
+
+    @app.middleware("http")
+    async def _next_segment_files(request, call_next):
+        # Next requests "/ask/__next.ask.__PAGE__.txt" but the export stores "/ask/__next.ask/__PAGE__.txt".
+        path = request.url.path
+        name = path.rsplit("/", 1)[-1]
+        if name.startswith("__next.") and name.endswith(".txt") and name.count(".") > 2:
+            stem = name[: -len(".txt")]
+            head, _, tail = stem.rpartition(".")
+            fixed = path[: len(path) - len(name)] + head + "/" + tail + ".txt"
+            if (Path(_frontend_dir) / fixed.lstrip("/")).is_file():
+                request.scope["path"] = fixed
+        return await call_next(request)
+
+    app.mount("/", _static, name="frontend")
