@@ -1,0 +1,17 @@
+[package]
+name = "aimeeting-desktop"
+version = "1.0.0"
+edition = "2021"
+
+[[bin]]
+name = "AIMeeting"
+path = "src/main.rs"
+
+[dependencies]
+tao = "0.34"
+wry = "0.54"
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true

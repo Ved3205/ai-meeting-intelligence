@@ -98,7 +98,7 @@ python scripts/test_video_pipeline.py path/to/meeting.mp4
 
 ## Offline Windows app
 
-`build_exe.ps1` packages the API, the static frontend, the Whisper and bge models and ffmpeg into `dist\AIMeeting` (embedded Qdrant, no server needed). Run `AIMeeting.exe` and it opens the browser. Ollama with `llama3.1` is still required for summaries and Ask AI. `installer\AIMeeting.iss` wraps the folder into a setup exe with Inno Setup.
+`build_exe.ps1` builds `dist\AIMeeting`: a small Rust window (`desktop/`, wry + WebView2) that starts the packaged backend (`AIMeetingCore.exe`, with embedded Qdrant and bundled Whisper, bge and ffmpeg) and shows the UI in its own app window. Closing the window stops the backend. Needs Rust, Python 3.14 with the project venv, and the Next static export in `web\`. Ollama with `llama3.1` is still required for summaries and Ask AI. `installer\AIMeeting.iss` wraps the folder into a setup exe with Inno Setup.
 
 ## API
 
