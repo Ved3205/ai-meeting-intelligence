@@ -6,7 +6,9 @@ DefaultDirName={autopf}\AIMeeting
 DefaultGroupName=AI Meeting Intelligence
 OutputDir=..\dist
 OutputBaseFilename=AIMeeting-Setup
-Compression=lzma2
+Compression=lzma2/fast
+DiskSpanning=yes
+DiskSliceSize=2000000000
 SolidCompression=yes
 PrivilegesRequired=lowest
 

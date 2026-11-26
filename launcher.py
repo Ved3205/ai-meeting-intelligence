@@ -30,7 +30,7 @@ def _setup_env(base: Path) -> None:
 
 def _ollama_status() -> str | None:
     try:
-        with urllib.request.urlopen("http://localhost:11434/api/tags", timeout=2) as r:
+        with urllib.request.urlopen(f"http://{os.environ.get('OLLAMA_HOST', '127.0.0.1:11434')}/api/tags", timeout=2) as r:
             if b"llama3.1" not in r.read():
                 return "Ollama is running but the llama3.1 model is missing. Run: ollama pull llama3.1"
     except Exception:

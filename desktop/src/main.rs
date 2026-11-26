@@ -12,6 +12,7 @@ use tao::window::WindowBuilder;
 use wry::{WebContext, WebViewBuilder};
 
 const PORT: u16 = 18765;
+const OLLAMA_ADDR: &str = "127.0.0.1:18766";
 const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 const LOADING: &str = "data:text/html,<body style='font-family:Segoe UI;background:%230f172a;color:%23e2e8f0;display:flex;align-items:center;justify-content:center;height:100vh;margin:0'><div>Starting AI Meeting Intelligence...</div></body>";
 
@@ -26,10 +27,42 @@ fn healthy() -> bool {
     buf.contains("200 OK")
 }
 
-fn start_core() -> Option<Child> {
-    let dir = std::env::current_exe().ok()?.parent()?.to_path_buf();
-    Command::new(dir.join("AIMeetingCore.exe"))
-        .arg("--no-window")
+fn app_dir() -> Option<std::path::PathBuf> {
+    Some(std::env::current_exe().ok()?.parent()?.to_path_buf())
+}
+
+fn start_ollama() -> Option<Child> {
+    let dir = app_dir()?;
+    let exe = dir.join("ollama").join("ollama.exe");
+    if !exe.is_file() {
+        return None;
+    }
+    Command::new(exe)
+        .arg("serve")
+        .env("OLLAMA_HOST", OLLAMA_ADDR)
+        .env("OLLAMA_MODELS", dir.join("ollama-models"))
+        .env("OLLAMA_KEEP_ALIVE", "30m")
+        .current_dir(&dir)
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn()
+        .ok()
+}
+
+fn kill_tree(c: &mut Child) {
+    let _ = Command::new("taskkill")
+        .args(["/PID", &c.id().to_string(), "/T", "/F"])
+        .creation_flags(CREATE_NO_WINDOW)
+        .status();
+    let _ = c.kill();
+}
+
+fn start_core(with_ollama: bool) -> Option<Child> {
+    let dir = app_dir()?;
+    let mut cmd = Command::new(dir.join("AIMeetingCore.exe"));
+    if with_ollama {
+        cmd.env("OLLAMA_HOST", OLLAMA_ADDR);
+    }
+    cmd.arg("--no-window")
         .env("PORT", PORT.to_string())
         .current_dir(&dir)
         .creation_flags(CREATE_NO_WINDOW)
@@ -38,7 +71,8 @@ fn start_core() -> Option<Child> {
 }
 
 fn main() {
-    let mut core = if healthy() { None } else { start_core() };
+    let mut ollama = if healthy() { None } else { start_ollama() };
+    let mut core = if healthy() { None } else { start_core(ollama.is_some()) };
     let event_loop = EventLoopBuilder::<()>::with_user_event().build();
     let proxy = event_loop.create_proxy();
     let window = WindowBuilder::new()
@@ -68,7 +102,10 @@ fn main() {
             }
             Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => {
                 if let Some(c) = core.as_mut() {
-                    let _ = c.kill();
+                    kill_tree(c);
+                }
+                if let Some(o) = ollama.as_mut() {
+                    kill_tree(o);
                 }
                 *flow = ControlFlow::Exit;
             }
