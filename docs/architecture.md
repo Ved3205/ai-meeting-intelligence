@@ -134,7 +134,6 @@ sequenceDiagram
     participant CS as ChunkingService
     participant IP as IndexingPipeline
     participant ES as EmbeddingService
-    participant Ollama as Ollama
     participant Qdrant as Qdrant
 
     User->>Upload: Upload meeting.mp4
@@ -160,8 +159,7 @@ sequenceDiagram
     loop For each chunk
 
         IP->>ES: embed(chunk)
-        ES->>Ollama: Generate embedding
-        Ollama-->>ES: Vector
+        ES->>ES: Encode chunk locally (bge-small)
         ES-->>IP: Embedding
 
         IP->>Qdrant: Store vector + payload
@@ -362,18 +360,13 @@ sequenceDiagram
 
     participant Pipeline as IndexingPipeline
     participant ES as EmbeddingService
-    participant Ollama
-    participant Model as bge-m3
+    participant Model as bge-small (sentence-transformers)
 
     Pipeline->>ES: embed(chunk)
 
-    ES->>Ollama: Embedding request
+    ES->>Model: Encode chunk text
 
-    Ollama->>Model: Encode chunk text
-
-    Model-->>Ollama: Vector
-
-    Ollama-->>ES: Embedding
+    Model-->>ES: Vector
 
     ES-->>Pipeline: list[float]
 ```
@@ -482,11 +475,7 @@ sequenceDiagram
 
     RS->>ES: Embed query
 
-    ES->>Ollama: Generate query embedding
-
-    Ollama-->>ES: Query vector
-
-    ES-->>RS: Query vector
+    ES-->>RS: Query vector (encoded locally)
 
     RS->>Qdrant: Semantic search
 
@@ -945,7 +934,7 @@ flowchart LR
 Currently implemented core capabilities include:
 
 * Meeting indexing pipeline
-* Embedding generation using Ollama / `bge-m3`
+* Local embedding generation with `BAAI/bge-small-en-v1.5` (sentence-transformers)
 * Qdrant vector storage
 * Chunk-based semantic indexing
 
