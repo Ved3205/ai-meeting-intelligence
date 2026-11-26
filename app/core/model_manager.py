@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from faster_whisper import WhisperModel
 from sentence_transformers import SentenceTransformer
 
@@ -29,6 +31,7 @@ class ModelManager:
                 WHISPER_MODEL,
                 device=WHISPER_DEVICE,
                 compute_type=WHISPER_COMPUTE_TYPE,
+                cpu_threads=min(8, os.cpu_count() or 4),
             )
 
             print("Whisper Loaded.")

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/states";
 import { api } from "@/lib/api";
+import { beep } from "@/lib/beep";
 import { cn, formatSize } from "@/lib/format";
 import type { Job } from "@/lib/types";
 
@@ -84,8 +85,15 @@ export function UploadRow({
   const step = activeStep(job);
 
   useEffect(() => {
-    if (done) queryClient.invalidateQueries({ queryKey: ["meetings"] });
+    if (done) {
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+      beep(880);
+    }
   }, [done, queryClient]);
+
+  useEffect(() => {
+    if (failed) beep(330, 260);
+  }, [failed]);
 
   const errors = uploadError ? [uploadError] : (job?.errors ?? []);
 

@@ -3,6 +3,7 @@
 import multiprocessing
 import os
 import sys
+import tempfile
 import threading
 import time
 import urllib.request
@@ -29,7 +30,7 @@ def _setup_env(base: Path) -> None:
 
 def _ollama_status() -> str | None:
     try:
-        with urllib.request.urlopen("http://localhost:11434/api/tags", timeout=2) as r:
+        with urllib.request.urlopen(f"http://{os.environ.get('OLLAMA_HOST', '127.0.0.1:11434')}/api/tags", timeout=2) as r:
             if b"llama3.1" not in r.read():
                 return "Ollama is running but the llama3.1 model is missing. Run: ollama pull llama3.1"
     except Exception:
@@ -49,6 +50,8 @@ def _open_when_ready() -> None:
 
 def main() -> None:
     multiprocessing.freeze_support()
+    if sys.stdout is None or sys.stderr is None:
+        sys.stdout = sys.stderr = open(Path(tempfile.gettempdir()) / "AIMeeting.log", "a", buffering=1, encoding="utf-8")
     _setup_env(_base_dir())
     warning = _ollama_status()
     if warning:
@@ -57,7 +60,8 @@ def main() -> None:
 
     from app.main import app
 
-    threading.Thread(target=_open_when_ready, daemon=True).start()
+    if "--no-window" not in sys.argv:
+        threading.Thread(target=_open_when_ready, daemon=True).start()
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="info")
 
 

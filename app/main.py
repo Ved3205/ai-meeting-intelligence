@@ -32,11 +32,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi import HTTPException
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.config import get_api_config
 from app.api.routes import health, indexing, jobs, library, meetings, query, summary
 import os
+import re
 from pathlib import Path
 
 from app.config.settings import UPLOAD_DIR
@@ -98,4 +101,35 @@ app.include_router(indexing.router)
 # Serve the exported frontend last so API routes win.
 _frontend_dir = os.environ.get("FRONTEND_DIR")
 if _frontend_dir and Path(_frontend_dir).is_dir():
-    app.mount("/", StaticFiles(directory=_frontend_dir, html=True), name="frontend")
+    class _Static(StaticFiles):
+        async def get_response(self, path, scope):
+            try:
+                return await super().get_response(path, scope)
+            except HTTPException as exc:
+                page = Path(_frontend_dir) / "404.html"
+                if exc.status_code == 404 and page.is_file():
+                    return FileResponse(page, status_code=404)
+                raise
+
+    _static = _Static(directory=_frontend_dir, html=True)
+
+    @app.middleware("http")
+    async def _next_segment_files(request, call_next):
+        # Next requests "/ask/__next.ask.__PAGE__.txt" but the export stores "/ask/__next.ask/__PAGE__.txt".
+        path = request.url.path
+        legacy = re.fullmatch(r"/meetings/([0-9a-fA-F-]{36})/?", path)
+        if legacy:
+            return RedirectResponse(f"/meeting/?id={legacy.group(1)}")
+        name = path.rsplit("/", 1)[-1]
+        if name.startswith("__next.") and name.endswith(".txt") and name.count(".") > 2:
+            stem = name[: -len(".txt")]
+            head, _, tail = stem.rpartition(".")
+            fixed = path[: len(path) - len(name)] + head + "/" + tail + ".txt"
+            if (Path(_frontend_dir) / fixed.lstrip("/")).is_file():
+                request.scope["path"] = fixed
+        response = await call_next(request)
+        if not path.startswith(("/api", "/_next")):
+            response.headers["Cache-Control"] = "no-cache"
+        return response
+
+    app.mount("/", _static, name="frontend")

@@ -6,7 +6,9 @@ DefaultDirName={autopf}\AIMeeting
 DefaultGroupName=AI Meeting Intelligence
 OutputDir=..\dist
 OutputBaseFilename=AIMeeting-Setup
-Compression=lzma2
+Compression=lzma2/fast
+DiskSpanning=yes
+DiskSliceSize=2000000000
 SolidCompression=yes
 PrivilegesRequired=lowest
 
@@ -19,3 +21,6 @@ Name: "{autodesktop}\AI Meeting Intelligence"; Filename: "{app}\AIMeeting.exe"
 
 [Run]
 Filename: "{app}\AIMeeting.exe"; Description: "Launch AI Meeting Intelligence"; Flags: postinstall nowait skipifsilent
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}"

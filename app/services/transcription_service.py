@@ -17,7 +17,10 @@ This service DOES NOT:
 - Call LLMs
 """
 
+import os
 from pathlib import Path
+
+from faster_whisper import BatchedInferencePipeline
 
 from app.core.model_manager import ModelManager
 
@@ -36,7 +39,7 @@ class TranscriptionService:
 
     def __init__(self):
 
-        self.model = ModelManager.get_whisper_model()
+        self.model = BatchedInferencePipeline(model=ModelManager.get_whisper_model())
 
     def transcribe(
         self,
@@ -60,8 +63,8 @@ class TranscriptionService:
         with Timer("Speech Transcription"):
             segments, info = self.model.transcribe(
                 str(audio.file_path),
-                beam_size=5,
-                vad_filter=True,
+                beam_size=1,
+                batch_size=8,
                 word_timestamps=False,
             )
 
