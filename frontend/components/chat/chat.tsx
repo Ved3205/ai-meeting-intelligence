@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { ErrorNote } from "@/components/ui/states";
 import { api } from "@/lib/api";
+import { countQuestion } from "@/lib/hooks";
 import { formatTime } from "@/lib/format";
 import type { SourceChunk } from "@/lib/types";
 
@@ -54,7 +55,7 @@ function Sources({ sources, showMeeting }: { sources: SourceChunk[]; showMeeting
                 {formatTime(s.start_time)} - {formatTime(s.end_time)}
               </span>
               {showMeeting && (
-                <Link href={`/meetings/${s.meeting_id}`} className="font-medium text-foreground hover:underline">
+                <Link href={`/meeting?id=${s.meeting_id}`} className="font-medium text-foreground hover:underline">
                   {s.title ?? "Meeting"}
                 </Link>
               )}
@@ -75,7 +76,8 @@ export function Chat({ meetingId, initialQuestion }: { meetingId?: string; initi
 
   const ask = useMutation({
     mutationFn: (question: string) => api.ask(question, meetingId),
-    onSuccess: (res) =>
+    onSuccess: (res) => {
+      countQuestion();
       setMessages((prev) => [
         ...prev,
         {
@@ -84,7 +86,8 @@ export function Chat({ meetingId, initialQuestion }: { meetingId?: string; initi
           confidence: res.confidence,
           sources: res.retrieved_chunks,
         },
-      ]),
+      ]);
+    },
   });
 
   function send(question: string) {

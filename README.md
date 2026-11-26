@@ -96,6 +96,10 @@ To try a pipeline without the web app, the scripts folder has one for each, for 
 python scripts/test_video_pipeline.py path/to/meeting.mp4
 ```
 
+## Offline Windows app
+
+`build_exe.ps1` packages the API, the static frontend, the Whisper and bge models and ffmpeg into `dist\AIMeeting` (embedded Qdrant, no server needed). Run `AIMeeting.exe` and it opens the browser. Ollama with `llama3.1` is still required for summaries and Ask AI. `installer\AIMeeting.iss` wraps the folder into a setup exe with Inno Setup.
+
 ## API
 
 | Method | Path | What it does |

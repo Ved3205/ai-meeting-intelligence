@@ -17,6 +17,7 @@ from app.models.query import Query
 from app.models.retrieval_result import RetrievalResult
 from app.models.retrieved_chunk import RetrievedChunk
 
+from app.vectorstore.shared_client import get_qdrant_client
 from app.services.embedding_service import (
     EmbeddingService,
 )
@@ -26,10 +27,7 @@ class RetrievalService:
 
     def __init__(self):
 
-        self.client = QdrantClient(
-            host=QDRANT_HOST,
-            port=QDRANT_PORT,
-        )
+        self.client = get_qdrant_client()
 
         self.embedding_service = EmbeddingService()
 

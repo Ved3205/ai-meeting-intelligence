@@ -18,6 +18,7 @@
   --warning-soft: #fffbeb;
   --danger: #dc2626;
   --danger-soft: #fef2f2;
+  --sidebar: #0f172a;
   --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.04);
 }
 
@@ -37,6 +38,7 @@
   --warning-soft: #3a2506;
   --danger: #f87171;
   --danger-soft: #3b1111;
+  --sidebar: #070b14;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
 }
 
@@ -47,6 +49,7 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-sidebar: var(--sidebar);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-soft: var(--primary-soft);
