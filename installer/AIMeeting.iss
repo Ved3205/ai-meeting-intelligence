@@ -21,3 +21,6 @@ Name: "{autodesktop}\AI Meeting Intelligence"; Filename: "{app}\AIMeeting.exe"
 
 [Run]
 Filename: "{app}\AIMeeting.exe"; Description: "Launch AI Meeting Intelligence"; Flags: postinstall nowait skipifsilent
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}"
