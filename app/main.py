@@ -32,9 +32,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.config import get_api_config
 from app.api.routes import health, indexing, jobs, library, meetings, query, summary
+import os
+from pathlib import Path
+
 from app.config.settings import UPLOAD_DIR
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s")
@@ -90,3 +94,8 @@ app.include_router(jobs.router)
 app.include_router(query.router)
 app.include_router(summary.router)
 app.include_router(indexing.router)
+
+# Serve the exported frontend last so API routes win.
+_frontend_dir = os.environ.get("FRONTEND_DIR")
+if _frontend_dir and Path(_frontend_dir).is_dir():
+    app.mount("/", StaticFiles(directory=_frontend_dir, html=True), name="frontend")
