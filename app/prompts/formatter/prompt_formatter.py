@@ -33,14 +33,7 @@ class PromptFormatter:
 
             sections.append(
                 f"""
-Chunk ID : {chunk.chunk_id}
-
-Meeting ID : {chunk.meeting_id}
-
-Timestamp : {chunk.start_time:.2f}s → {chunk.end_time:.2f}s
-
-Content
-
+[{chunk.start_time:.0f}s - {chunk.end_time:.0f}s]
 {chunk.text}
 """
             )

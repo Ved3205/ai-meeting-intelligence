@@ -73,7 +73,7 @@ MAX_TOKENS_PER_CHUNK = 180
 
 MIN_WORDS_PER_CHUNK = 60
 
-CHUNK_OVERLAP_SEGMENTS = 1
+CHUNK_OVERLAP_SEGMENTS = 0
 # =============================================================================
 # EMBEDDING CONFIGURATION
 # =============================================================================
@@ -122,6 +122,10 @@ LLM_MODEL = "llama3.1"
 LLM_TEMPERATURE = 0.2
 
 MAX_TOKENS = 2048
+
+LLM_NUM_CTX = 8192
+
+LLM_TIMEOUT_SECONDS = 600
 
 
 # =============================================================================

@@ -8,7 +8,9 @@ import ollama
 
 from app.config.settings import (
     LLM_MODEL,
+    LLM_NUM_CTX,
     LLM_TEMPERATURE,
+    LLM_TIMEOUT_SECONDS,
 )
 
 from app.models.llm_request import LLMRequest
@@ -26,6 +28,7 @@ class LLMService:
     def __init__(self):
 
         self.model = LLM_MODEL
+        self.client = ollama.Client(timeout=LLM_TIMEOUT_SECONDS)
 
     def generate_answer(
         self,
@@ -41,7 +44,7 @@ class LLMService:
 
         prompt = builder.build(prompt_request)
 
-        response = ollama.chat(
+        response = self.client.chat(
             model=self.model,
             messages=[
                 {
@@ -51,10 +54,11 @@ class LLMService:
             ],
             options={
                 "temperature": LLM_TEMPERATURE,
+                "num_ctx": LLM_NUM_CTX,
             },
         )
 
-        answer = response["message"]["content"]
+        answer =response["message"]["content"]
 
         source_chunks = [
             chunk.chunk_id
@@ -78,7 +82,7 @@ class LLMService:
         Unlike generate_answer(), it does not rebuild the prompt through
         the QA prompt builder.
         """
-        response = ollama.chat(
+        response = self.client.chat(
             model=self.model,
             messages=[
                 {
@@ -88,6 +92,7 @@ class LLMService:
             ],
             options={
                 "temperature": LLM_TEMPERATURE,
+                "num_ctx": LLM_NUM_CTX,
             },
         )
 

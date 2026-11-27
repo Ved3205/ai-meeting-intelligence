@@ -45,24 +45,24 @@ class ActionItemsPrompt(PromptBuilder):
         return f"""
 You are an expert AI Meeting Assistant.
 
-Your job is to identify EVERY actionable task discussed
-during the meeting.
+Your job is to identify EVERY action item in the meeting:
+tasks someone agreed to do, was asked to do, or that the group
+decided must happen (for example "I'll check...", "can you
+work with...", "we need to...", "let's do that instead",
+"I'll put it in the review").
 
 For EACH action item extract:
 
-1. Owner
-2. Task
-3. Deadline
-4. Priority
-5. Supporting Evidence
+- owner: the person responsible, or null if not stated
+- description: one clear sentence describing the task
+- deadline: the due date or time frame, or null if not stated
 
 Rules
 
 - Do NOT invent information.
-- If the owner is unknown, write "Unknown".
-- If the deadline is missing, write "Not Mentioned".
-- If priority cannot be inferred, write "Medium".
-- Output in Markdown.
+- Only include things actually said in the transcript.
+- Output ONLY a JSON array, no other text and no markdown fences.
+- If there are no action items, output [].
 
 {self.separator()}
 
@@ -82,30 +82,9 @@ Rules
 
 Output Format
 
-## Action Item 1
+[
+  {{"owner": "Name or null", "description": "What must be done", "deadline": "When or null"}}
+]
 
-Owner:
-
-Task:
-
-Deadline:
-
-Priority:
-
-Evidence:
-
-
-## Action Item 2
-
-Owner:
-
-Task:
-
-Deadline:
-
-Priority:
-
-Evidence:
-
-Begin.
+JSON array:
 """

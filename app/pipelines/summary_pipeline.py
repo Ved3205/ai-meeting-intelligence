@@ -354,11 +354,15 @@ class SummaryPipeline:
 
         raw = raw.strip()
 
+        # Pull the JSON array out of fences or surrounding prose.
+        array_match = re.search(r"\[.*\]", raw, re.DOTALL)
+        json_text = array_match.group(0) if array_match else raw
+
         # --------------------------------------------------------------
         # First: JSON response
         # --------------------------------------------------------------
         try:
-            parsed = json.loads(raw)
+            parsed = json.loads(json_text)
 
             if isinstance(parsed, list):
                 items: List[Dict[str, Optional[str]]] = []
@@ -436,6 +440,10 @@ class SummaryPipeline:
         if not has_structured_items and any(
             pattern in lowered for pattern in _NO_ACTION_ITEMS_PATTERNS
         ):
+            return []
+
+        # Plain prose is not a list of tasks.
+        if not has_structured_items:
             return []
 
         # --------------------------------------------------------------

@@ -121,6 +121,11 @@ class MeetingContextService:
 
     def _fetch_chunks(self, meeting_id: str, max_chunks: int) -> List[RetrievedChunk]:
         """Retrieve a broad chunk sample and filter to this meeting_id."""
-        query = Query(question=_BROAD_QUERY_TEXT, top_k=max_chunks, score_threshold=0.0)
+        query = Query(
+            question=_BROAD_QUERY_TEXT,
+            top_k=max_chunks,
+            score_threshold=0.0,
+            meeting_id=meeting_id,
+        )
         results = self.retrieval_service.retrieve(query)
         return [result.chunk for result in results if result.chunk.meeting_id == meeting_id]

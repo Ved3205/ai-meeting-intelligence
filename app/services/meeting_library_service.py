@@ -74,7 +74,16 @@ class MeetingLibraryService:
 
     def get_chunks(self, meeting_id: str) -> list[dict]:
         payloads = [p.payload for p in self._scroll(_meeting_filter(meeting_id))]
-        return sorted(payloads, key=lambda p: p["chunk_index"])
+        payloads.sort(key=lambda p: p["chunk_index"])
+        # Older uploads stored the same passage several times.
+        seen = set()
+        unique = []
+        for p in payloads:
+            key = " ".join(p["text"].split()).lower()
+            if key not in seen:
+                seen.add(key)
+                unique.append(p)
+        return unique
 
     def delete_meeting(self, meeting_id: str) -> None:
         self.client.delete(

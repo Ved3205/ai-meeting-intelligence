@@ -42,6 +42,8 @@ fn start_ollama() -> Option<Child> {
         .env("OLLAMA_HOST", OLLAMA_ADDR)
         .env("OLLAMA_MODELS", dir.join("ollama-models"))
         .env("OLLAMA_KEEP_ALIVE", "30m")
+        .env("OLLAMA_MAX_LOADED_MODELS", "1")
+        .env("OLLAMA_NUM_PARALLEL", "1")
         .current_dir(&dir)
         .creation_flags(CREATE_NO_WINDOW)
         .spawn()

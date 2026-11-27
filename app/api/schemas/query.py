@@ -14,7 +14,7 @@ class QueryRequest(BaseModel):
     """Request body for POST /api/v1/meetings/{meeting_id}/query."""
 
     question: str = Field(..., min_length=1, description="Natural-language question.")
-    top_k: int = Field(5, gt=0, description="Maximum number of chunks to retrieve.")
+    top_k: int = Field(8, gt=0, description="Maximum number of chunks to retrieve.")
     score_threshold: float = Field(
         0.70, ge=0.0, le=1.0, description="Minimum similarity score for a retrieved chunk."
     )

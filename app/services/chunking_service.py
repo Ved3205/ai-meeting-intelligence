@@ -1,130 +1,68 @@
 """
 services/chunking_service.py
 
-Creates semantic chunks while preserving TranscriptSegment
-objects and timestamps.
+Groups whole TranscriptSegments into chunks, keeping timestamps exact.
 """
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
 from app.config.settings import (
-    CHUNK_SIZE,
-    CHUNK_OVERLAP,
+    CHUNK_OVERLAP_SEGMENTS,
+    MAX_WORDS_PER_CHUNK,
 )
 
 from app.models.chunk import Chunk
-from app.models.transcript import (
-    Transcript,
-    TranscriptSegment,
-)
+from app.models.transcript import Transcript
 
 
 class ChunkingService:
     """
-    Converts a Transcript into semantic Chunk objects.
+    Converts a Transcript into Chunk objects made of whole segments.
     """
 
     def __init__(self):
 
-        self.splitter = RecursiveCharacterTextSplitter(
-            chunk_size=CHUNK_SIZE,
-            chunk_overlap=CHUNK_OVERLAP,
-            separators=[
-                "\n\n",
-                "\n",
-                ". ",
-                "? ",
-                "! ",
-                " ",
-                "",
-            ],
-            add_start_index=True,
-        )
+        self.max_words = MAX_WORDS_PER_CHUNK
+        self.overlap = CHUNK_OVERLAP_SEGMENTS
 
     def chunk_transcript(
         self,
         transcript: Transcript,
     ) -> list[Chunk]:
 
-        text, segment_map = self._build_document(transcript)
-
-        docs = self.splitter.create_documents([text])
+        segments = [
+            s for s in transcript.segments if s.text.strip()
+        ]
 
         chunks = []
+        start = 0
 
-        for idx, doc in enumerate(docs):
+        while start < len(segments):
 
-            start = doc.metadata["start_index"]
-            end = start + len(doc.page_content)
+            end = start
+            words = 0
 
-            chunk_segments = self._segments_for_range(
-                segment_map,
-                start,
-                end,
-            )
+            while end < len(segments):
+                words += len(segments[end].text.split())
+                end += 1
+                if words >= self.max_words:
+                    break
 
-            if not chunk_segments:
-                continue
+            group = segments[start:end]
 
             chunks.append(
                 Chunk(
-                    chunk_id=f"{transcript.meeting_id}_{idx}",
+                    chunk_id=f"{transcript.meeting_id}_{len(chunks)}",
                     meeting_id=transcript.meeting_id,
-                    chunk_index=idx,
-                    transcript_segments=chunk_segments,
-                    start_time=chunk_segments[0].start,
-                    end_time=chunk_segments[-1].end,
+                    chunk_index=len(chunks),
+                    transcript_segments=group,
+                    start_time=group[0].start,
+                    end_time=group[-1].end,
                 )
             )
 
+            if end >= len(segments):
+                break
+
+            # Overlap by N segments but always move forward.
+            start = max(end - self.overlap, start + 1)
+
         return chunks
-
-    def _build_document(
-        self,
-        transcript: Transcript,
-    ):
-
-        parts = []
-        mapping = []
-
-        cursor = 0
-
-        for segment in transcript.segments:
-
-            text = segment.text.strip()
-
-            start = cursor
-            end = start + len(text)
-
-            parts.append(text)
-
-            mapping.append(
-                {
-                    "segment": segment,
-                    "start": start,
-                    "end": end,
-                }
-            )
-
-            cursor = end + 1
-
-        return "\n".join(parts), mapping
-
-    def _segments_for_range(
-        self,
-        mapping,
-        chunk_start,
-        chunk_end,
-    ):
-
-        segments = []
-
-        for item in mapping:
-
-            if (
-                item["end"] >= chunk_start
-                and item["start"] <= chunk_end
-            ):
-                segments.append(item["segment"])
-
-        return segments
